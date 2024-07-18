@@ -36,4 +36,4 @@ def remove_best_value(data_array, filepath):
 
 if __name__ == "__main__":
     data_array = read_data("aa_data.csv")
-    remove_best_value(data_array, "test_data.csv")
+    remove_best_value(data_array, "new_test_data.csv")

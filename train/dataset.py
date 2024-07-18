@@ -6,8 +6,8 @@ import context
 from torch.utils.data import Dataset, DataLoader, dataloader
 from torch.nn.utils.rnn import pad_sequence
 
-_max_tok_len = 0
-_max_lab_len = 0
+_max_tok_len = 18
+_max_lab_len = 10
 
 
 class DataCtg(Enum):
@@ -49,12 +49,12 @@ class AminoDataSet(Dataset):
                 self.labels.append(self.label2sequence(row[0]))
                 self.tokens.append(self.sentence2token(row[1:]))
 
-                global _max_lab_len
-                if len(self.labels[-1]) > _max_lab_len:
-                    _max_lab_len = len(self.labels[-1])
-                global _max_tok_len
-                if len(self.tokens[-1]) > _max_tok_len:
-                    _max_tok_len = len(self.tokens[-1])
+                # global _max_lab_len
+                # if len(self.labels[-1]) > _max_lab_len:
+                #     _max_lab_len = len(self.labels[-1])
+                # global _max_tok_len
+                # if len(self.tokens[-1]) > _max_tok_len:
+                #     _max_tok_len = len(self.tokens[-1])
             self.length = len(self.labels)
 
     def __getitem__(self, index):

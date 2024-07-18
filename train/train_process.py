@@ -1,4 +1,5 @@
 import context
+import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -41,6 +42,11 @@ model = Transformer(
     n_heads=8,
 )
 
+model_path=os.path.join(context.current_dir, 'transformer_model.pth')
+
+if os.path.exists(model_path):
+    model = torch.load(model_path)
+
 # Check if CUDA is available and set device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
@@ -63,13 +69,11 @@ train_accuracies, val_accuracies = [], []
 
 def calculate_accuracy(predictions, targets):
     first_one_index = (targets == 1).nonzero(as_tuple=True)[1]
-    mask = torch.ones_like(targets, dtype=torch.bool)
-    for i in range(mask.shape[0]):
-        mask[i, first_one_index[i] + 1 :] = 0
+    mask = torch.arange(targets.size(1)).expand_as(targets) <= first_one_index.unsqueeze(1)
     _, preds = torch.max(predictions, dim=-1)
     correct = (preds == targets).float()
     correct = correct * mask.float()
-    accuracy = correct.sum() / correct.numel()
+    accuracy = correct.sum() / mask.sum()
     return accuracy.item()
 
 

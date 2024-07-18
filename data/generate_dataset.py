@@ -133,8 +133,11 @@ if __name__ == "__main__":
     # result = get_token(gen.get("DE"))
     # print(result)
 
-    shuffle_file("aa_data.csv")
+    # shuffle_file("aa_data.csv")
 
     # generate_dataset(400, 2)
     # generate_dataset(6000, 3)
-    # generate_dataset(10000, 4)
+    # generate_dataset(10000, 5)
+    # generate_dataset(10000, 6)
+    generate_dataset(10000, 7)
+    # generate_dataset(10000, 8)
