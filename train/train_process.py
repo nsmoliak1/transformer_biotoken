@@ -13,7 +13,9 @@ from train.dataset import get_dataloader, DataCtg
 train_dataloader, lab_len, tok_len = get_dataloader(DataCtg.TRAIN, 32)
 val_dataloader, _, _ = get_dataloader(DataCtg.VAL, 32)
 
-src_vocab_size = 1404
+parameter_file = "transformer_model_with_m.pth"
+
+src_vocab_size = 2404
 target_vocab_size = 25
 target_padding = 24  # the padding char in target
 num_layers = 6
@@ -42,7 +44,7 @@ model = Transformer(
     n_heads=8,
 )
 
-model_path=os.path.join(context.current_dir, 'transformer_model.pth')
+model_path = os.path.join(context.parent_dir, parameter_file)
 
 if os.path.exists(model_path):
     model = torch.load(model_path)
@@ -69,7 +71,9 @@ train_accuracies, val_accuracies = [], []
 
 def calculate_accuracy(predictions, targets):
     first_one_index = (targets == 1).nonzero(as_tuple=True)[1]
-    mask = torch.arange(targets.size(1)).expand_as(targets) <= first_one_index.unsqueeze(1)
+    mask = torch.arange(targets.size(1)).expand_as(
+        targets
+    ) <= first_one_index.unsqueeze(1)
     _, preds = torch.max(predictions, dim=-1)
     correct = (preds == targets).float()
     correct = correct * mask.float()
@@ -126,9 +130,11 @@ for epoch in range(num_epochs):
     print(
         f"Epoch {epoch+1}/{num_epochs}, Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}, Validation Loss: {val_loss:.4f}, Validation Acc: {val_acc:.4f}"
     )
+    if train_acc == 1.0 and val_acc == 1.0:
+        break
 
 # Save the model
-torch.save(model, "transformer_model.pth")
+torch.save(model, os.path.join(context.parent_dir, parameter_file))
 
 # Plotting the loss and accuracy graphs
 plt.figure(figsize=(12, 4))
@@ -148,4 +154,5 @@ plt.ylabel("Accuracy")
 plt.title("Training and Validation Accuracy")
 plt.legend()
 
-plt.show()
+# plt.show()
+plt.savefig(os.path.join(context.current_dir, "image.svg"))

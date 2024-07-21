@@ -69,11 +69,13 @@ class AminoDataSet(Dataset):
         token = list()
         for word in sentence:
             if word == "<SOS>":
-                token.append(1400)
+                token.append(2400)
             elif word == "<NOS>":
-                token.append(1401)
+                token.append(2401)
             elif word == "<EOS>":
-                token.append(1402)
+                token.append(2402)
+            elif int(word) < 0:
+                token.append(-int(word) + 1400)
             else:
                 token.append(int(word))
 
@@ -100,7 +102,7 @@ def collate_batch(batch):
             label.extend([24] * int(_max_lab_len - len(label)))
     for token in tokens:
         if len(token) < _max_tok_len:
-            token.extend([1403] * (_max_tok_len - len(token)))
+            token.extend([2403] * (_max_tok_len - len(token)))
     return torch.tensor(labels, dtype=torch.int), torch.tensor(tokens, dtype=torch.int)
 
 

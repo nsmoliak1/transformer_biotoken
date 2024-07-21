@@ -11,7 +11,8 @@ from train.dataset import get_dataloader, DataCtg
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
-model_path = os.path.join(context.current_dir, "transformer_model.pth")
+# model_path = os.path.join(context.current_dir, "transformer_model.pth")
+model_path = os.path.join(context.parent_dir, "transformer_model_with_m.pth")
 
 model = torch.load(model_path)
 model = model.to(device)
