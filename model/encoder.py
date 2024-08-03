@@ -1,57 +1,38 @@
-import torch
-from torch import nn
-from . import embedding
-from . import block
+import torch.nn as nn
+from . import utils
+from . import structure
 
 
-class TransformerEncoder(nn.Module):
+class Encoder(nn.Module):
     """
-    The encoder part of transformer. Responsible for encoding the input information.
+    Core encoder is a stack of N layers
     """
 
-    def __init__(
-        self,
-        seq_len: int,
-        vocab_size: int,
-        embed_dim: int,
-        num_layrs: int = 2,
-        expansion_factor: int = 4,
-        n_heads: int = 8,
-    ) -> None:
-        """
-        Initializes the TransformerEncoder
+    def __init__(self, layer, N):
+        super(Encoder, self).__init__()
+        self.layers = utils.clones(layer, N)
+        self.norm = structure.LayerNorm(layer.size)
 
-        Args:
-            seq_len: length of input sequence
-            embed_dim: dimension of embedding
-            num_layers: number of encoder layers
-            expansion_factor: factor which determines number of linear layers in feed forward layer
-            n_heads: number of heads in multihead attetion
-        """
-        super(TransformerEncoder, self).__init__()
-        self.transformer_embedding = embedding.TransformerEmbedding(
-            vocab_size, seq_len, embed_dim
-        )
-
-        self.layers = nn.ModuleList(
-            [
-                block.TransformerBlock(embed_dim, expansion_factor, n_heads)
-                for _ in range(num_layrs)
-            ]
-        )
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Performs the forward pass for the transformer block.
-
-        Args:
-            x: input of encoder
-
-        Returns:
-            torch.Tensor: output of the encoder
-        """
-        out = self.transformer_embedding(x)
+    def forward(self, x, mask):
+        # Pass the input (and mask) through each layer in turn.
         for layer in self.layers:
-            out = layer(out, out, out)
+            x = layer(x, mask)
+        return self.norm(x)
 
-        return out
+
+class EncoderLayer(nn.Module):
+    """
+    Encoder is made up of self-attention and feed forward (defined below)
+    """
+
+    def __init__(self, size, self_attn, feed_forward, dropout):
+        super(EncoderLayer, self).__init__()
+        self.self_attn = self_attn
+        self.feed_forward = feed_forward
+        self.sublayer = utils.clones(structure.SublayerConnection(size, dropout), 2)
+        self.size = size
+
+    def forward(self, x, mask):
+        # self-attn -> residual -> feed forward -> residual
+        x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, mask))
+        return self.sublayer[1](x, self.feed_forward)

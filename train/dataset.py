@@ -2,11 +2,12 @@ from enum import Enum, auto
 import os
 import csv
 import torch
-import context
-from torch.utils.data import Dataset, DataLoader, dataloader
-from torch.nn.utils.rnn import pad_sequence
 
-_max_tok_len = 18
+# import context
+from . import context
+from torch.utils.data import Dataset, DataLoader, dataloader
+
+_max_tok_len = 16
 _max_lab_len = 10
 
 
@@ -103,7 +104,9 @@ def collate_batch(batch):
     for token in tokens:
         if len(token) < _max_tok_len:
             token.extend([2403] * (_max_tok_len - len(token)))
-    return torch.tensor(labels, dtype=torch.int), torch.tensor(tokens, dtype=torch.int)
+    return torch.tensor(labels, dtype=torch.int64), torch.tensor(
+        tokens, dtype=torch.int64
+    )
 
 
 def get_dataloader(ctg: DataCtg, batch_size=32):

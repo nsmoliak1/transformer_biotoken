@@ -2,7 +2,9 @@ import csv
 from enum import Enum, auto
 import random
 import numpy as np
-import generator
+from . import generator
+
+# import generator
 
 import os
 import sys
@@ -42,6 +44,22 @@ aa_dict = {
     21: "W",
     22: "Y",
 }
+
+
+def get_generator():
+    return gen
+
+def decode_target(token):
+    token = token.squeeze()
+    aa_sequence = list()
+    for num in token:
+        if num == 0:
+            continue
+        elif num == 1:
+            break
+        else:
+            aa_sequence.append(aa_dict[num - 1])
+    return aa_sequence
 
 
 class Category(Enum):
@@ -134,10 +152,11 @@ if __name__ == "__main__":
     # print(result)
 
     # shuffle_file("aa_data.csv")
+    print(get_token(gen.get('PDAC')))
 
     # generate_dataset(400, 2)
     # generate_dataset(6000, 3)
-    # generate_dataset(10000, 5)
+    # generate_dataset(10000, 4)
     # generate_dataset(10000, 6)
-    generate_dataset(10000, 7)
+    # generate_dataset(10000, 7)
     # generate_dataset(10000, 8)

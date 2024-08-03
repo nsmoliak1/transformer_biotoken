@@ -1,79 +1,43 @@
+import copy
 import torch
-from torch import nn
-from . import encoder
-from . import decoder
-
-print(torch.__version__)
+import torch.nn as nn
+from . import structure, encoder, decoder, utils
 
 
-class Transformer(nn.Module):
-    """
-    Transformer model
-    """
+def make_model(src_vocab, tgt_vocab, N=6, d_model=512, d_ff=2048, h=8, dropout=0.1):
+    # Helper: Construct a model from hyperparameters.
+    c = copy.deepcopy
+    attn = structure.MultiHeadedAttention(h, d_model)
+    ff = structure.PositionwiseFeedForward(d_model, d_ff, dropout)
+    position = structure.PositionalEncoding(d_model, dropout)
+    model = structure.EncoderDecoder(
+        encoder.Encoder(encoder.EncoderLayer(d_model, c(attn), c(ff), dropout), N),
+        decoder.Decoder(
+            decoder.DecoderLayer(d_model, c(attn), c(attn), c(ff), dropout), N
+        ),
+        nn.Sequential(structure.Embeddings(d_model, src_vocab), c(position)),
+        nn.Sequential(structure.Embeddings(d_model, tgt_vocab), c(position)),
+        structure.Generator(d_model, tgt_vocab),
+    )
 
-    def __init__(
-        self,
-        embed_dim,
-        src_vocab_size,
-        target_vocab_size,
-        src_seq_length,
-        trg_seq_length,
-        num_layers=2,
-        expansion_factor=4,
-        n_heads=8,
-    ):
-        """
-        Initialize Transformer
+    # This was important from their code.
+    # Initialize parameters with Glorot / fan_avg.
+    for p in model.parameters():
+        if p.dim() > 1:
+            nn.init.xavier_uniform_(p)
+    return model
 
-        Args:
-            embed_dim: the dimension of embedding vectors
-            src_vocab_size: the size of source vocabulary
-            target_vocab_size: the size of target vocabulary
-            src_seq_length: the length of sequence of source
-            trg_seq_length: the length of sequence of target
-            num_layers: the number of layers
-            expansion_factor: factor which determines number of linear layers in feed forward layer
-            n_heads: number of heads in multihead attetion
-        """
-        super(Transformer, self).__init__()
-
-        self.target_vocab_size = target_vocab_size
-        self.encoder = encoder.TransformerEncoder(
-            src_seq_length,
-            src_vocab_size,
-            embed_dim,
-            num_layers,
-            expansion_factor,
-            n_heads,
+def greedy_decode(model, src, src_mask, max_len, start_symbol):
+    memory = model.encode(src, src_mask)
+    ys = torch.zeros(1, 1).fill_(start_symbol).type_as(src.data)
+    for _ in range(max_len - 1):
+        out = model.decode(
+            memory, src_mask, ys, utils.subsequent_mask(ys.size(1)).type_as(src.data)
         )
-        self.decoder = decoder.TransformerDecoder(
-            target_vocab_size,
-            embed_dim,
-            trg_seq_length,
-            num_layers,
-            expansion_factor,
-            n_heads,
+        prob = model.generator(out[:, -1])
+        _, next_word = torch.max(prob, dim=1)
+        next_word = next_word.data[0]
+        ys = torch.cat(
+            [ys, torch.zeros(1, 1).type_as(src.data).fill_(next_word)], dim=1
         )
-
-    # TODO: adjust the length
-    def transform(self, src: torch.Tensor, trg: torch.Tensor):
-        enc_out = self.encoder(src)
-        out_labels = []
-        seq_len = src.shape[1]
-        out = trg
-        for _ in range(seq_len):
-            out = self.decoder(out, enc_out)  # bs x seq_len x vocab+dim
-            # taking the last token
-            out = out[:, -1, :]
-
-            out = out.argmax(-1)
-            out_labels.append(out.item())
-            out = torch.unsqueeze(out, dim=0)
-
-        return out_labels
-
-    def forward(self, src: torch.Tensor, trg: torch.Tensor) -> torch.Tensor:
-        enc_out = self.encoder(src)
-
-        outputs = self.decoder(trg, enc_out)
-        return outputs
+    return ys

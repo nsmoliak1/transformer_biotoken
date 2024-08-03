@@ -157,7 +157,7 @@ class Generator:
         pot_curve = np.gradient(
             np.gradient(pot_plot, ph_array[1] - ph_array[0]), ph_array[1] - ph_array[0]
         )
-        plt.plot(ph_array, pot_curve)
+        # plt.plot(ph_array, pot_curve)
         # tokens_pot = np.where(
         #     np.logical_and(np.abs(np.diff(out)) >= 1e-10, np.diff(np.sign(out)) != 0)
         # )[0]
@@ -168,17 +168,17 @@ class Generator:
         cap_curve = np.gradient(
             np.gradient(cap_plot, ph_array[1] - ph_array[0]), ph_array[1] - ph_array[0]
         )
-        plt.plot(ph_array, cap_curve)
+        # plt.plot(ph_array, cap_curve)
         # tokens_cap = np.where(
         #     np.logical_and(np.abs(np.diff(out)) >= 1e-10, np.diff(np.sign(out)) != 0)
         # )[0]
         # tokens_cap = np.append(tokens_cap, 0)
 
         # plt.show()
-        plt.savefig("test.svg")
+        # plt.savefig("test.svg")
         return pot_curve, cap_curve
 
     def get(self, chain):
-        k_vals = self.get_kvals(chain[:-1])
+        k_vals = self.get_kvals(chain)
         # print(k_vals)
         return self.get_tokens(k_vals)
