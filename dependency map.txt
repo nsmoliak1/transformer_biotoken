@@ -1,0 +1,84 @@
+Transformer_Biotoken/
+├── __init__.py
+├── config.py
+├── final_train.py
+│   ├── context
+│   ├── torch
+│   ├── torch.nn as nn
+│   ├── torch.optim as optim
+│   ├── matplotlib.pyplot as plt
+│   ├── model.transformer (Transformer)
+│   ├── train_test.dataset (get_dataloader, DataCtg)
+├── model/
+│   ├── __init__.py
+│   ├── encoder.py
+│   │   ├── torch
+│   │   ├── torch.nn as nn
+│   │   ├── model.embedding
+│   │   └── model.block
+│   ├── decoder.py
+│   │   ├── torch
+│   │   ├── torch.nn as nn
+│   │   ├── model.block
+│   │   └── model.embedding
+│   ├── embedding.py
+│   │   ├── torch
+│   │   ├── torch.nn as nn
+│   ├── block.py
+│   │   ├── torch
+│   │   ├── torch.nn as nn
+│   │   ├── torch.nn.functional as F
+│   └── transformer.py
+│       ├── torch
+│       ├── torch.nn as nn
+│       ├── model.encoder
+│       └── model.decoder
+├── data/
+│   ├── __init__.py
+│   ├── generate_dataset.py
+│   │   ├── csv
+│   │   ├── enum (Enum, auto)
+│   │   ├── random
+│   │   ├── numpy as np
+│   │   └── data.generator
+│   ├── generator.py
+│   │   ├── numpy as np
+│   │   ├── yaml
+│   │   ├── scipy.optimize (brentq)
+│   │   └── matplotlib.pyplot as plt
+│   └── target_vocab.csv
+├── train/
+│   ├── __init__.py
+│   ├── dataset.py
+│   │   ├── enum (Enum, auto)
+│   │   ├── os
+│   │   ├── csv
+│   │   ├── torch
+│   │   ├── torch.utils.data (Dataset, DataLoader)
+│   │   └── torch.nn.utils.rnn (pad_sequence)
+│   ├── simple.py
+│   │   ├── torch
+│   │   ├── model.transformer (Transformer)
+│   ├── train_demo.py
+│   │   ├── model.transformer (Transformer)
+│   │   ├── train.dataset (get_dataloader, DataCtg)
+│   └── train_process.py
+│       ├── model.transformer (Transformer)
+│       ├── train.dataset (get_dataloader, DataCtg)
+├── test/
+│   ├── __init__.py
+│   └── test_model.py
+│       ├── model.transformer (Transformer)
+│       ├── train.dataset (get_dataloader, DataCtg)
+├── dependency_printing.py
+│   ├── os
+└── project_info.py
+    ├── os
+    ├── json
+    ├── subprocess
+    ├── pathlib (Path)
+    ├── platform
+    ├── git (Repo, InvalidGitRepositoryError)
+    ├── rich (print)
+    ├── rich.tree (Tree)
+    └── rich.console (Console)

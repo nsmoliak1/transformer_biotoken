@@ -135,9 +135,9 @@ if __name__ == "__main__":
 
     # shuffle_file("aa_data.csv")
 
-    # generate_dataset(400, 2)
+    generate_dataset(40, 2)
     # generate_dataset(6000, 3)
     # generate_dataset(10000, 5)
     # generate_dataset(10000, 6)
-    generate_dataset(10000, 7)
+    # generate_dataset(10000, 7)
     # generate_dataset(10000, 8)
